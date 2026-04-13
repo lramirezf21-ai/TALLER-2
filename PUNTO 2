@@ -1,0 +1,144 @@
+import java.util.*;
+
+class Edge implements Comparable<Edge> {
+    int u, v, weight;
+
+    Edge(int u, int v, int weight) {
+        this.u = u;
+        this.v = v;
+        this.weight = weight;
+    }
+
+    public int compareTo(Edge other) {
+        return this.weight - other.weight;
+    }
+}
+
+public class MSTExample {
+
+    static int V = 6;
+
+    // =========================
+    // PRIM
+    // =========================
+    static int prim(int[][] graph) {
+        boolean[] visited = new boolean[V];
+        int[] key = new int[V];
+        Arrays.fill(key, Integer.MAX_VALUE);
+
+        key[0] = 0;
+        int cost = 0;
+
+        for (int i = 0; i < V; i++) {
+            int u = -1;
+
+            for (int j = 0; j < V; j++) {
+                if (!visited[j] && (u == -1 || key[j] < key[u])) {
+                    u = j;
+                }
+            }
+
+            visited[u] = true;
+            cost += key[u];
+
+            for (int v = 0; v < V; v++) {
+                if (graph[u][v] != 0 && !visited[v] && graph[u][v] < key[v]) {
+                    key[v] = graph[u][v];
+                }
+            }
+        }
+
+        return cost;
+    }
+
+    // =========================
+    // KRUSKAL
+    // =========================
+    static int find(int[] parent, int i) {
+        if (parent[i] != i)
+            parent[i] = find(parent, parent[i]);
+        return parent[i];
+    }
+
+    static void union(int[] parent, int[] rank, int x, int y) {
+        int rootX = find(parent, x);
+        int rootY = find(parent, y);
+
+        if (rank[rootX] < rank[rootY])
+            parent[rootX] = rootY;
+        else if (rank[rootX] > rank[rootY])
+            parent[rootY] = rootX;
+        else {
+            parent[rootY] = rootX;
+            rank[rootX]++;
+        }
+    }
+
+    static int kruskal(List<Edge> edges) {
+        Collections.sort(edges);
+
+        int[] parent = new int[V];
+        int[] rank = new int[V];
+
+        for (int i = 0; i < V; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+
+        int cost = 0;
+        int count = 0;
+
+        for (Edge e : edges) {
+            int rootU = find(parent, e.u);
+            int rootV = find(parent, e.v);
+
+            if (rootU != rootV) {
+                cost += e.weight;
+                union(parent, rank, rootU, rootV);
+                count++;
+            }
+
+            if (count == V - 1)
+                break;
+        }
+
+        return cost;
+    }
+
+    public static void main(String[] args) {
+
+        // Matriz de adyacencia para Prim
+        int[][] graph = {
+                { 0, 6, 1, 5, 0, 0 },
+                { 6, 0, 2, 0, 5, 0 },
+                { 1, 2, 0, 2, 6, 0 },
+                { 5, 0, 2, 0, 0, 4 },
+                { 0, 5, 6, 0, 0, 3 },
+                { 0, 0, 0, 4, 3, 0 }
+        };
+
+        // Lista de aristas para Kruskal
+        List<Edge> edges = new ArrayList<>();
+        edges.add(new Edge(0, 1, 6));
+        edges.add(new Edge(0, 2, 1));
+        edges.add(new Edge(0, 3, 5));
+        edges.add(new Edge(1, 2, 2));
+        edges.add(new Edge(1, 4, 5));
+        edges.add(new Edge(2, 3, 2));
+        edges.add(new Edge(2, 4, 6));
+        edges.add(new Edge(3, 5, 4));
+        edges.add(new Edge(4, 5, 3));
+
+        int primCost = prim(graph);
+        int kruskalCost = kruskal(edges);
+
+        System.out.println("Costo MST con Prim: " + primCost);
+        System.out.println("Costo MST con Kruskal: " + kruskalCost);
+
+        if (primCost == kruskalCost) {
+            System.out.println("✔ Ambos métodos dan el mismo resultado.");
+        } else {
+            System.out.println("❌ Los resultados son diferentes.");
+        }
+    }
+}

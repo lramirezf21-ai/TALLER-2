@@ -1,0 +1,76 @@
+import java.util.*;
+
+public class FloydWarshall {
+
+    static final int INF = 99999;
+    static int V = 5;
+
+    public static void main(String[] args) {
+
+        int[][] dist = {
+            {0,   10,  INF, INF, 3},
+            {INF, 0,   2,   INF, 4},
+            {INF, INF, 0,   9,   INF},
+            {INF, INF, 7,   0,   INF},
+            {INF, 1,   8,   2,   0}
+        };
+
+        int[][] next = new int[V][V];
+
+        // Inicializar matriz de caminos
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                if (dist[i][j] != INF && i != j)
+                    next[i][j] = j;
+                else
+                    next[i][j] = -1;
+            }
+        }
+
+        // Floyd-Warshall
+        for (int k = 0; k < V; k++) {
+            for (int i = 0; i < V; i++) {
+                for (int j = 0; j < V; j++) {
+
+                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
+                        dist[i][j] = dist[i][k] + dist[k][j];
+                        next[i][j] = next[i][k];
+                    }
+                }
+            }
+        }
+
+        // Mostrar matriz de distancias
+        System.out.println("Matriz de distancias mínimas:");
+
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                if (dist[i][j] == INF)
+                    System.out.print("INF ");
+                else
+                    System.out.print(dist[i][j] + "   ");
+            }
+            System.out.println();
+        }
+
+        // Camino 0 -> 3
+        System.out.print("\nCamino mínimo de 0 → 3: ");
+        printPath(0, 3, next);
+
+        System.out.println("\nDistancia: " + dist[0][3]);
+    }
+
+    // Reconstruir camino
+    static void printPath(int u, int v, int[][] next) {
+        if (next[u][v] == -1) {
+            System.out.println("No existe camino");
+            return;
+        }
+
+        System.out.print(u);
+        while (u != v) {
+            u = next[u][v];
+            System.out.print(" → " + u);
+        }
+    }
+}

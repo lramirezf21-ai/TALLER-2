@@ -1,0 +1,51 @@
+public class Warshall {
+
+    static int V = 4;
+
+    public static void main(String[] args) {
+
+        int[][] reach = {
+            {0, 1, 0, 0},
+            {0, 0, 1, 0},
+            {1, 0, 0, 1},
+            {0, 0, 0, 0}
+        };
+
+        // Warshall
+        for (int k = 0; k < V; k++) {
+            for (int i = 0; i < V; i++) {
+                for (int j = 0; j < V; j++) {
+                    if (reach[i][k] == 1 && reach[k][j] == 1) {
+                        reach[i][j] = 1;
+                    }
+                }
+            }
+        }
+
+        // Mostrar matriz de alcanzabilidad
+        System.out.println("Matriz de alcanzabilidad:");
+
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                System.out.print(reach[i][j] + " ");
+            }
+            System.out.println();
+        }
+
+        // Verificar si es fuertemente conexo
+        boolean fuerte = true;
+
+        for (int i = 0; i < V; i++) {
+            for (int j = 0; j < V; j++) {
+                if (i != j && reach[i][j] == 0) {
+                    fuerte = false;
+                }
+            }
+        }
+
+        if (fuerte)
+            System.out.println("\nEl grafo es fuertemente conexo.");
+        else
+            System.out.println("\nEl grafo NO es fuertemente conexo.");
+    }
+}

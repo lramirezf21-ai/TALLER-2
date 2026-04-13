@@ -1,0 +1,111 @@
+import java.util.*;
+
+class Edge {
+    int to, weight;
+
+    Edge(int to, int weight) {
+        this.to = to;
+        this.weight = weight;
+    }
+}
+
+class Node implements Comparable<Node> {
+    int vertex, dist;
+
+    Node(int vertex, int dist) {
+        this.vertex = vertex;
+        this.dist = dist;
+    }
+
+    public int compareTo(Node other) {
+        return this.dist - other.dist;
+    }
+}
+
+public class Dijkstra {
+
+    static int V = 5;
+
+    static void dijkstra(List<List<Edge>> graph, int start) {
+
+        int[] dist = new int[V];
+        int[] parent = new int[V];
+
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        Arrays.fill(parent, -1);
+
+        dist[start] = 0;
+
+        PriorityQueue<Node> pq = new PriorityQueue<>();
+        pq.add(new Node(start, 0));
+
+        while (!pq.isEmpty()) {
+            Node current = pq.poll();
+            int u = current.vertex;
+
+            for (Edge e : graph.get(u)) {
+                int v = e.to;
+                int w = e.weight;
+
+                if (dist[u] + w < dist[v]) {
+                    dist[v] = dist[u] + w;
+                    parent[v] = u;
+                    pq.add(new Node(v, dist[v]));
+                }
+            }
+        }
+
+        // Mostrar resultados
+        System.out.println("Vértice\tDistancia\tCamino");
+
+        for (int i = 0; i < V; i++) {
+            System.out.print(i + "\t\t" + dist[i] + "\t\t");
+            printPath(parent, i);
+            System.out.println();
+        }
+    }
+
+    // Reconstrucción del camino
+    static void printPath(int[] parent, int v) {
+        List<Integer> path = new ArrayList<>();
+        int current = v;
+
+        while (current != -1) {
+            path.add(current);
+            current = parent[current];
+        }
+
+        Collections.reverse(path);
+
+        for (int i = 0; i < path.size(); i++) {
+            System.out.print(path.get(i));
+            if (i < path.size() - 1)
+                System.out.print(" → ");
+        }
+    }
+
+    public static void main(String[] args) {
+
+        List<List<Edge>> graph = new ArrayList<>();
+
+        for (int i = 0; i < V; i++)
+            graph.add(new ArrayList<>());
+
+        // Grafo dirigido
+        graph.get(0).add(new Edge(1, 10));
+        graph.get(0).add(new Edge(4, 3));
+
+        graph.get(1).add(new Edge(2, 2));
+        graph.get(1).add(new Edge(4, 4));
+
+        graph.get(2).add(new Edge(3, 9));
+
+        graph.get(3).add(new Edge(2, 7));
+
+        graph.get(4).add(new Edge(1, 1));
+        graph.get(4).add(new Edge(2, 8));
+        graph.get(4).add(new Edge(3, 2));
+
+        dijkstra(graph, 0);
+    }
+}

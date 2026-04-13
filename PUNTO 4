@@ -1,0 +1,84 @@
+import java.util.*;
+
+public class BFSShortestPath {
+
+    static int V = 6;
+
+    static void bfs(List<List<Integer>> graph, int start, int end) {
+
+        boolean[] visited = new boolean[V];
+        int[] parent = new int[V];
+
+        Arrays.fill(parent, -1);
+
+        Queue<Integer> queue = new LinkedList<>();
+        queue.add(start);
+        visited[start] = true;
+
+        while (!queue.isEmpty()) {
+            int u = queue.poll();
+
+            if (u == end)
+                break;
+
+            for (int v : graph.get(u)) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    parent[v] = u;
+                    queue.add(v);
+                }
+            }
+        }
+
+        // Reconstruir camino
+        List<Integer> path = new ArrayList<>();
+        int current = end;
+
+        while (current != -1) {
+            path.add(current);
+            current = parent[current];
+        }
+
+        Collections.reverse(path);
+
+        // Mostrar resultado
+        System.out.print("Camino más corto → ");
+        for (int i = 0; i < path.size(); i++) {
+            System.out.print(path.get(i));
+            if (i < path.size() - 1)
+                System.out.print(" → ");
+        }
+    }
+
+    public static void main(String[] args) {
+
+        List<List<Integer>> graph = new ArrayList<>();
+
+        for (int i = 0; i < V; i++)
+            graph.add(new ArrayList<>());
+
+        // Grafo no dirigido
+        graph.get(0).add(1);
+        graph.get(1).add(0);
+
+        graph.get(0).add(2);
+        graph.get(2).add(0);
+
+        graph.get(1).add(3);
+        graph.get(3).add(1);
+
+        graph.get(2).add(3);
+        graph.get(3).add(2);
+
+        graph.get(3).add(4);
+        graph.get(4).add(3);
+
+        graph.get(4).add(5);
+        graph.get(5).add(4);
+
+        int origen = 0;
+        int destino = 5;
+
+        bfs(graph, origen, destino);
+    }
+}

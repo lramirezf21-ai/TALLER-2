@@ -1,0 +1,158 @@
+import java.util.*;
+
+class Edge implements Comparable<Edge> {
+    int u, v, weight;
+
+    Edge(int u, int v, int weight) {
+        this.u = u;
+        this.v = v;
+        this.weight = weight;
+    }
+
+    public int compareTo(Edge other) {
+        return this.weight - other.weight;
+    }
+}
+
+public class MSTKruskal {
+
+    static int V = 6;
+
+    // =========================
+    // UNION-FIND
+    // =========================
+    static int find(int[] parent, int i) {
+        if (parent[i] != i)
+            parent[i] = find(parent, parent[i]);
+        return parent[i];
+    }
+
+    static void union(int[] parent, int[] rank, int x, int y) {
+        int rootX = find(parent, x);
+        int rootY = find(parent, y);
+
+        if (rank[rootX] < rank[rootY])
+            parent[rootX] = rootY;
+        else if (rank[rootX] > rank[rootY])
+            parent[rootY] = rootX;
+        else {
+            parent[rootY] = rootX;
+            rank[rootX]++;
+        }
+    }
+
+    // =========================
+    // KRUSKAL
+    // =========================
+    static int kruskal(List<Edge> edges) {
+
+        Collections.sort(edges);
+
+        int[] parent = new int[V];
+        int[] rank = new int[V];
+
+        for (int i = 0; i < V; i++) {
+            parent[i] = i;
+            rank[i] = 0;
+        }
+
+        int totalCost = 0;
+        int discarded = 0;
+        int count = 0;
+
+        System.out.println("Aristas seleccionadas (Kruskal):");
+
+        for (Edge e : edges) {
+            int rootU = find(parent, e.u);
+            int rootV = find(parent, e.v);
+
+            if (rootU != rootV) {
+                System.out.println(e.u + " - " + e.v + " (peso: " + e.weight + ")");
+                totalCost += e.weight;
+                union(parent, rank, rootU, rootV);
+                count++;
+            } else {
+                discarded++;
+            }
+
+            if (count == V - 1)
+                break;
+        }
+
+        System.out.println("Aristas descartadas por ciclo: " + discarded);
+        System.out.println("Costo total MST (Kruskal): " + totalCost);
+
+        return totalCost;
+    }
+
+    // =========================
+    // PRIM (para comparar)
+    // =========================
+    static int prim(int[][] graph) {
+        boolean[] visited = new boolean[V];
+        int[] key = new int[V];
+        Arrays.fill(key, Integer.MAX_VALUE);
+
+        key[0] = 0;
+        int cost = 0;
+
+        for (int i = 0; i < V; i++) {
+            int u = -1;
+
+            for (int j = 0; j < V; j++) {
+                if (!visited[j] && (u == -1 || key[j] < key[u])) {
+                    u = j;
+                }
+            }
+
+            visited[u] = true;
+            cost += key[u];
+
+            for (int v = 0; v < V; v++) {
+                if (graph[u][v] != 0 && !visited[v] && graph[u][v] < key[v]) {
+                    key[v] = graph[u][v];
+                }
+            }
+        }
+
+        return cost;
+    }
+
+    public static void main(String[] args) {
+
+        // Lista de aristas
+        List<Edge> edges = new ArrayList<>();
+        edges.add(new Edge(0, 1, 6));
+        edges.add(new Edge(0, 2, 1));
+        edges.add(new Edge(0, 3, 5));
+        edges.add(new Edge(1, 2, 2));
+        edges.add(new Edge(1, 4, 5));
+        edges.add(new Edge(2, 3, 2));
+        edges.add(new Edge(2, 4, 6));
+        edges.add(new Edge(3, 5, 4));
+        edges.add(new Edge(4, 5, 3));
+
+        // Matriz para Prim
+        int[][] graph = {
+            {0, 6, 1, 5, 0, 0},
+            {6, 0, 2, 0, 5, 0},
+            {1, 2, 0, 2, 6, 0},
+            {5, 0, 2, 0, 0, 4},
+            {0, 5, 6, 0, 0, 3},
+            {0, 0, 0, 4, 3, 0}
+        };
+
+        int kruskalCost = kruskal(edges);
+        int primCost = prim(graph);
+
+        System.out.println("\nComparación:");
+        System.out.println("Costo Prim: " + primCost);
+        System.out.println("Costo Kruskal: " + kruskalCost);
+
+        if (primCost == kruskalCost) {
+            System.out.println("✔ Ambos algoritmos generan el mismo MST.");
+        } else {
+            System.out.println("❌ Los resultados son diferentes.");
+        }
+    }
+}
